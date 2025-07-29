@@ -23,7 +23,7 @@ A native macOS menu bar terminal application with dropdown functionality, multip
 
 1. Clone this repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/NoahSchmitd/MenuBarTerminal.git
    cd MenuBarTerminal
    ```
 
