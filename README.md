@@ -1,126 +1,110 @@
 # MenuBarTerminal
 
-A native macOS menu bar terminal application with dropdown functionality, multiple tabs, and full terminal capabilities. Perfect for developers who want quick terminal access without cluttering their dock.
+A native macOS menu bar terminal application with dropdown functionality, multiple tabs, and full terminal capabilities designed to work seamlessly with Claude Code.
 
-![MenuBarTerminal Demo](demo.gif)
-
-## ✨ Features
+## Features
 
 - 🎯 **Menu Bar Integration**: Clean menu bar icon with dropdown terminal
-- 📱 **Multiple Tabs**: Support for multiple terminal sessions with easy tab management
-- ✨ **Smooth Animations**: Beautiful slide-down/up animations with native feel
-- 🔄 **Auto-Hide**: Automatically hides when clicking outside (configurable)
-- ⚡ **Global Hotkey**: Quick access with `Cmd+Shift+T`
-- 📁 **Custom Directory**: Set your preferred startup directory
-- 🚀 **Autostart**: Optional startup at login
-- 📋 **Copy/Paste**: Full clipboard support (`Cmd+C`/`Cmd+V`)
-- 🧠 **Claude Code Compatible**: Works seamlessly with Claude Code CLI
+- 📱 **Multiple Tabs**: Support for multiple terminal sessions
+- ✨ **Smooth Animations**: Beautiful slide-down/up animations
+- 🔄 **Auto-Hide**: Automatically hides when focus is lost
+- ⚡ **Global Hotkey**: Quick access with Cmd+Shift+T
+- 🧠 **Claude Code Compatible**: Full compatibility with Claude Code CLI
 - 🍎 **Native Performance**: Built with Swift and AppKit for optimal macOS experience
 
-## 🎯 Perfect for
-
-- **Developers** who need quick terminal access
-- **Claude Code users** wanting integrated terminal experience  
-- **Power users** who prefer menu bar tools
-- Anyone wanting a **clean, minimal terminal** solution
-
-## 📋 Requirements
+## Requirements
 
 - macOS 13.0 (Ventura) or later
-- Swift 5.9 or later (for building from source)
+- Swift 5.9 or later
 
-## 🚀 Installation
+## Installation
 
-### Option 1: Download Release (Coming Soon)
-Download the latest `.dmg` from [Releases](../../releases)
+### Building from Source
 
-### Option 2: Build from Source
-
-1. **Clone this repository:**
+1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/MenuBarTerminal.git
+   git clone <repository-url>
    cd MenuBarTerminal
    ```
 
-2. **Build the project:**
+2. Build the project:
    ```bash
    swift build -c release
    ```
 
-3. **Run the application:**
+3. Run the application:
    ```bash
    .build/release/MenuBarTerminal
    ```
 
-## 🎮 Usage
+## Usage
 
 ### Basic Operations
-- **Toggle Terminal**: Click menu bar icon or press `Cmd+Shift+T`
-- **New Tab**: Right-click menu bar icon → "New Tab"
-- **Close Tab**: Click the `✕` on tab titles (when multiple tabs open)
-- **Switch Tabs**: Click on tab titles
-- **Hide Terminal**: Click outside terminal window
 
-### Preferences
-Right-click menu bar icon → **Preferences** to configure:
-- **Font Size**: Adjust terminal font size
-- **Window Size**: Set custom width/height
-- **Default Directory**: Choose startup directory
-- **Auto-hide**: Enable/disable auto-hide on focus loss
-- **Global Hotkey**: Enable/disable `Cmd+Shift+T`
-- **Autostart**: Launch at login
+- **Open/Close Terminal**: Click the terminal icon in the menu bar or press `Cmd+Shift+T`
+- **New Tab**: Right-click the menu bar icon and select "New Tab" or use the menu
+- **Switch Tabs**: Click on tab titles in the terminal interface
+- **Auto-Hide**: Click outside the terminal window to hide it automatically
 
-### Keyboard Shortcuts
+### Global Hotkeys
+
 - `Cmd+Shift+T`: Toggle terminal visibility
-- `Cmd+C`: Copy selected text
-- `Cmd+V`: Paste from clipboard
-- `Cmd+T`: New tab (from right-click menu)
 
-## 🏗 Architecture
+### Menu Options
+
+Right-click the menu bar icon to access:
+- New Tab
+- Preferences (coming soon)
+- Quit
+
+## Architecture
+
+The project follows a clean architecture pattern:
 
 ```
 MenuBarTerminal/
-├── Sources/MenuBarTerminal/
-│   ├── main.swift                 # Application entry point
-│   ├── App/                       # App lifecycle & state
-│   │   ├── AppDelegate.swift      # Main app coordinator
-│   │   └── AppState.swift         # Shared app state
-│   ├── UI/                        # User interface
-│   │   ├── MenuBarController.swift    # Menu bar management
-│   │   ├── DropdownWindow.swift       # Main terminal window
-│   │   ├── TerminalTabView.swift      # Tab management
-│   │   └── PreferencesWindow.swift    # Settings window
-│   ├── Terminal/                  # Terminal logic
-│   │   ├── TerminalViewController.swift  # Individual terminal
-│   │   ├── TerminalConfig.swift         # Terminal configuration
-│   │   └── TerminalTabManager.swift     # Tab state management
-│   └── Utils/                     # Utilities
-│       ├── KeyboardShortcuts.swift     # Global hotkeys
-│       ├── AnimationHelper.swift       # Animation utilities
-│       └── UserDefaults+Extension.swift # Settings storage
-├── Tests/                         # Unit tests
-├── Package.swift                  # Swift Package Manager
-├── LICENSE                        # MIT License
-└── README.md                      # This file
+├── App/                    # Application lifecycle
+├── UI/                     # User interface components
+├── Terminal/               # Terminal-specific logic
+├── Utils/                  # Utility functions and extensions
+└── Resources/              # Assets and resources
 ```
 
-## 🔧 Technical Details
+### Key Components
+
+- **AppDelegate**: Main application coordinator
+- **MenuBarController**: Manages the menu bar icon and menu
+- **DropdownWindow**: Handles the dropdown terminal window with animations
+- **TerminalTabView**: Manages multiple terminal tabs
+- **TerminalViewController**: Individual terminal instances using SwiftTerm
+
+## Technical Details
 
 ### Dependencies
-- **[SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)**: Terminal emulation engine
-- **Carbon**: Global hotkey registration
-- **AppKit**: Native macOS UI framework
+
+- **SwiftTerm**: Provides terminal emulation capabilities
+- **Carbon**: Used for global hotkey registration
 
 ### Terminal Features
-- Full ANSI color support (16 colors)
-- Login shell support with environment inheritance
-- Persistent sessions (continue running when hidden)
-- Text selection and clipboard integration
-- Mouse support for text selection
 
-## 🧪 Development
+- Full ANSI color support (16 colors)
+- Login shell support (`-l` flag)
+- Environment variable inheritance
+- Persistent sessions (terminals continue running when hidden)
+
+## Development
+
+### Project Structure
+
+The codebase is organized into logical modules:
+
+1. **App Layer**: Application state and lifecycle management
+2. **UI Layer**: User interface components and controllers  
+3. **Terminal Layer**: Terminal emulation and session management
+4. **Utils Layer**: Helper functions and extensions
 
 ### Building
+
 ```bash
 # Debug build
 swift build
@@ -128,74 +112,65 @@ swift build
 # Release build  
 swift build -c release
 
-# Run directly during development
+# Run directly
 swift run
 ```
 
-### Testing
-```bash
-# Run tests
-swift test
-```
+## Testing with Claude Code
 
-## 🤝 Contributing
+The terminal is designed to work seamlessly with Claude Code:
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+1. Install Claude Code CLI in your system
+2. Open MenuBarTerminal
+3. Use Claude Code commands as normal - all features should work including:
+   - File operations
+   - Code execution
+   - Interactive sessions
+   - Environment variables
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-**Terminal doesn't appear**
-- Check that the menu bar icon is visible
-- Try clicking the icon or pressing `Cmd+Shift+T`
+1. **Terminal doesn't appear**: Check that the menu bar icon is visible and clickable
+2. **Global hotkey not working**: Ensure the app has accessibility permissions in System Preferences
+3. **Commands not found**: Verify that your shell environment is properly configured
 
-**Global hotkey not working**
-- Go to System Preferences → Security & Privacy → Accessibility
-- Add MenuBarTerminal to the list of allowed apps
+### Permissions
 
-**Commands not found**
-- Check that your shell environment is properly configured
-- Terminal uses login shell (`-l` flag) to inherit your environment
+The application may require:
+- **Accessibility Access**: For global hotkeys (System Preferences > Security & Privacy > Accessibility)
 
-**Copy/paste not working**
-- Make sure to select text first, then use `Cmd+C`
-- Use `Cmd+V` to paste (not right-click paste)
+## Contributing
 
-## 📄 License
+1. Fork the project
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-## 🙏 Acknowledgments
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- **[SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)** by Miguel de Icaza - Excellent terminal emulation library
-- **Apple's AppKit** - Native macOS interface framework
+## Acknowledgments
+
+**This application is built on top of excellent open source libraries:**
+
+- **[SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)** by Miguel de Icaza - The core terminal emulation engine that powers this app. All terminal functionality (text rendering, ANSI color support, shell interaction) is provided by SwiftTerm.
+- **Apple's AppKit** - Native macOS interface framework for window management and UI components
+- **Swift Package Manager** - Dependency management and build system
 - **The Swift Community** - Ongoing support and development
-- **Claude Code** - Inspiration for terminal integration
 
-## 🗺 Roadmap
+**Important Note:** This application is a GUI wrapper around SwiftTerm. The actual terminal emulation, text processing, and shell interaction are handled entirely by the SwiftTerm library. We've built the menu bar interface, dropdown animations, tab management, and preferences system on top of SwiftTerm's solid foundation.
 
-### Planned Features
-- [ ] **App Bundle**: Native `.app` bundle for easy installation
-- [ ] **Themes**: Dark mode and custom color schemes
-- [ ] **Split Panes**: Multiple terminals in one window
-- [ ] **SSH Integration**: Quick SSH connection management
-- [ ] **Session Restoration**: Remember terminals across app restarts
-- [ ] **Custom Shortcuts**: User-configurable keyboard shortcuts
-- [ ] **Shell Profiles**: Multiple shell configurations
+## Roadmap
 
-### Maybe Features
-- [ ] **Touch Bar Support**: MacBook Pro Touch Bar integration
-- [ ] **Script Integration**: Run custom scripts from menu
-- [ ] **Terminal History**: Search through terminal history
-- [ ] **Notification Integration**: Terminal notifications
-
----
-
-**Made with ❤️ for developers who love clean, efficient tools.**
+- [ ] Preferences window with customizable settings
+- [ ] Theme support (Dark mode, custom color schemes)
+- [ ] Split pane functionality
+- [ ] SSH connection management
+- [ ] Session restoration across app restarts
+- [ ] Custom keyboard shortcuts configuration
+- [ ] Shell profile selection
+- [ ] Mous youse insted of arrow keys
