@@ -1,0 +1,53 @@
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+*.xcodeproj/
+*.xcworkspace/
+.swiftpm/
+
+# Xcode
+DerivedData/
+build/
+xcuserdata/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.netrc
+
+# Thumbnails
+*.thumbs
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+
+# User-specific files
+*.swp
+*.swo
+*~
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
