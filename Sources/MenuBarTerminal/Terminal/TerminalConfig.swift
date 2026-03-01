@@ -24,6 +24,6 @@ struct TerminalConfig {
     ]
     
     static var defaultFont: NSFont {
-        return NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
+        return NSFont(name: "MesloLGS NF", size: 13) ?? NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
     }
 }

@@ -1,4 +1,5 @@
 import Cocoa
+import ServiceManagement
 
 class PreferencesWindow: NSWindow {
     private static var sharedInstance: PreferencesWindow?
@@ -173,16 +174,16 @@ class PreferencesWindow: NSWindow {
     }
     
     private func updateAutostartSetting() {
-        // Note: Full autostart implementation requires .app bundle
-        // For now, we just save the preference
-        if UserDefaults.standard.autostartEnabled {
-            print("Autostart enabled - will be implemented with .app bundle")
-        } else {
-            print("Autostart disabled")
+        let service = SMAppService.mainApp
+        do {
+            if UserDefaults.standard.autostartEnabled {
+                try service.register()
+            } else {
+                try service.unregister()
+            }
+        } catch {
+            print("Failed to update login item: \(error)")
         }
-        
-        // TODO: Implement with SMAppService when we create .app bundle
-        // This is the modern way to handle login items in macOS 13+
     }
     
     @objc private func cancelPreferences() {
