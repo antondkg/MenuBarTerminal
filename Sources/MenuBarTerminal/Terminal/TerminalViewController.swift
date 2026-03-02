@@ -35,6 +35,9 @@ class TerminalViewController: NSViewController, LocalProcessTerminalViewDelegate
 
         terminalView.font = TerminalConfig.defaultFont
         terminalView.installColors(TerminalConfig.colorScheme)
+        // Use font-provided box drawing glyphs for tmux pane separators.
+        // SwiftTerm's custom renderer can overpaint neighboring cells in split panes.
+        terminalView.customBlockGlyphs = false
 
         var environment = ProcessInfo.processInfo.environment
         environment["TERM"] = "xterm-256color"

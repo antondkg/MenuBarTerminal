@@ -82,7 +82,7 @@ MenuBarTerminal/
 
 ### Dependencies
 
-- **SwiftTerm**: Provides terminal emulation capabilities
+- **SwiftTerm**: Terminal emulation engine (pinned to a patched fork revision to prevent tmux split-pane glyph overflow with Nerd Fonts)
 - **Carbon**: Used for global hotkey registration
 
 ### Terminal Features
