@@ -201,6 +201,10 @@ class TerminalTabView: NSView, TerminalViewControllerDelegate {
     func terminalTitleChanged(_ controller: TerminalViewController, title: String) {
         updateTabBar()
     }
+
+    func terminalAttentionRequested(_ controller: TerminalViewController) {
+        NotificationCenter.default.post(name: .terminalAttention, object: controller)
+    }
     
     func focusCurrentTerminal() {
         guard currentIndex < terminals.count else { return }

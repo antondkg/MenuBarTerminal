@@ -4,6 +4,7 @@ import SwiftTerm
 class AppDelegate: NSObject, NSApplicationDelegate {
     var menuBarController: MenuBarController!
     var dropdownWindow: DropdownWindow!
+    private var attentionSoundEnabled = true
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Install the scroll-wheel swizzle so trackpad scrolling works in TUI apps
@@ -25,6 +26,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Setup global paste monitor
         setupGlobalPasteMonitor()
+        setupAttentionObserver()
 
         // Load saved state
         restoreTerminalSessions()
@@ -45,6 +47,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func handleGlobalPaste() {
         guard let clipboard = NSPasteboard.general.string(forType: .string) else { return }
         dropdownWindow.tabView.sendTextToCurrentTerminal(clipboard)
+    }
+
+    private func setupAttentionObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleTerminalAttention),
+            name: .terminalAttention,
+            object: nil
+        )
+    }
+
+    @objc private func handleTerminalAttention() {
+        menuBarController.setAttentionIndicator(true)
+
+        let dropdownVisible = dropdownWindow.isVisible && dropdownWindow.isKeyWindow
+        guard attentionSoundEnabled, !dropdownVisible else { return }
+        if let sound = NSSound(named: .init("Glass")) {
+            sound.play()
+        } else {
+            NSSound.beep()
+        }
     }
     
     func toggleDropdown() {
@@ -77,10 +100,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         dropdownWindow.setFrame(NSRect(x: x, y: y, width: windowWidth, height: windowHeight), display: false)
+        menuBarController.setAttentionIndicator(false)
         dropdownWindow.slideDown()
     }
     
     private func restoreTerminalSessions() {
         // TODO: Implement session restoration
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        NotificationCenter.default.removeObserver(self)
     }
 }
