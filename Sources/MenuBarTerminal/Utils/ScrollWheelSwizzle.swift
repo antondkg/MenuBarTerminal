@@ -20,6 +20,10 @@ import SwiftTerm
 // ---------------------------------------------------------------------------
 
 private var scrollAccumulator: CGFloat = 0
+private let scrollDebugEnabled: Bool = {
+    let value = ProcessInfo.processInfo.environment["MBT_SCROLL_DEBUG"]?.lowercased() ?? ""
+    return value == "1" || value == "true" || value == "yes"
+}()
 
 /// Call once (e.g. in applicationDidFinishLaunching) to install the swizzle.
 func installScrollWheelSwizzle() {
@@ -44,6 +48,28 @@ func installScrollWheelSwizzle() {
 
 extension TerminalView {
 
+    private func mbtPointerLocation(for event: NSEvent, terminal: Terminal) -> (gridX: Int, gridY: Int, pixelX: Int, pixelY: Int) {
+        let location = convert(event.locationInWindow, from: nil)
+        let clampedX = max(0, min(location.x, bounds.width))
+        let clampedY = max(0, min(location.y, bounds.height))
+        let topOriginY = max(0, bounds.height - clampedY)
+
+        let dims = terminal.getDims()
+        let cols = max(1, dims.cols)
+        let rows = max(1, dims.rows)
+
+        let normalizedX = bounds.width > 0 ? clampedX / bounds.width : 0
+        let normalizedY = bounds.height > 0 ? topOriginY / bounds.height : 0
+
+        let gridX = min(max(Int(normalizedX * CGFloat(cols)), 0), cols - 1)
+        let gridY = min(max(Int(normalizedY * CGFloat(rows)), 0), rows - 1)
+
+        let pixelX = Int(clampedX.rounded(.down))
+        let pixelY = Int(topOriginY.rounded(.down))
+
+        return (gridX: gridX, gridY: gridY, pixelX: pixelX, pixelY: pixelY)
+    }
+
     /// After swizzling, calling `self.mbt_scrollWheel(with:)` actually invokes
     /// the **original** SwiftTerm implementation (the selectors are swapped).
     @objc func mbt_scrollWheel(with event: NSEvent) {
@@ -61,7 +87,9 @@ extension TerminalView {
                 rawDelta = event.deltaY * 10           // mouse wheel: line delta
             }
 
-            scrollLog("mbt_scrollWheel: altBuffer rawDelta=\(rawDelta) accum=\(scrollAccumulator) mouseMode=\(terminal.mouseMode) appCursor=\(terminal.applicationCursor) phase=\(event.phase.rawValue) momentumPhase=\(event.momentumPhase.rawValue)")
+            let pointer = mbtPointerLocation(for: event, terminal: terminal)
+            let dims = terminal.getDims()
+            scrollLog("mbt_scrollWheel: altBuffer rawDelta=\(rawDelta) accum=\(scrollAccumulator) mouseMode=\(terminal.mouseMode) cols=\(dims.cols) rows=\(dims.rows) grid=(\(pointer.gridX),\(pointer.gridY)) pixel=(\(pointer.pixelX),\(pointer.pixelY)) phase=\(event.phase.rawValue) momentumPhase=\(event.momentumPhase.rawValue)")
 
             // Reset accumulator at start of a new gesture
             if event.phase == .began {
@@ -78,23 +106,26 @@ extension TerminalView {
 
                 if terminal.mouseMode != .off {
                     // TUI is using mouse reporting.
-                    // Button 64 = scroll up, 65 = scroll down (X10 encoding).
-                    let btn = goingUp ? 64 : 65
-                    terminal.sendEvent(buttonFlags: btn, x: 0, y: 0)
-                    scrollLog("  -> mouse button \(btn)")
+                    let buttonNumber = goingUp ? 4 : 5
+                    let buttonFlags = terminal.encodeButton(
+                        button: buttonNumber,
+                        release: false,
+                        shift: event.modifierFlags.contains(.shift),
+                        meta: event.modifierFlags.contains(.option),
+                        control: event.modifierFlags.contains(.control)
+                    )
+                    terminal.sendEvent(
+                        buttonFlags: buttonFlags,
+                        x: pointer.gridX,
+                        y: pointer.gridY,
+                        pixelX: pointer.pixelX,
+                        pixelY: pointer.pixelY
+                    )
+                    scrollLog("  -> mouse buttonNumber=\(buttonNumber) buttonFlags=\(buttonFlags) at=(\(pointer.gridX),\(pointer.gridY))")
                 } else {
-                    // No mouse reporting -- send arrow key escape sequences
-                    // exactly like SwiftTerm's own sendKeyUp / sendKeyDown.
-                    if terminal.applicationCursor {
-                        self.send(goingUp
-                                  ? EscapeSequences.moveUpApp
-                                  : EscapeSequences.moveDownApp)
-                    } else {
-                        self.send(goingUp
-                                  ? EscapeSequences.moveUpNormal
-                                  : EscapeSequences.moveDownNormal)
-                    }
-                    scrollLog("  -> arrow key (appCursor=\(terminal.applicationCursor) up=\(goingUp))")
+                    // No mouse reporting -- send page key escape sequences.
+                    self.send(goingUp ? EscapeSequences.cmdPageUp : EscapeSequences.cmdPageDown)
+                    scrollLog("  -> page key up=\(goingUp)")
                 }
 
                 scrollAccumulator -= goingUp ? lineThreshold : -lineThreshold
@@ -120,6 +151,7 @@ extension TerminalView {
 //  Debug logger (shared with DropdownWindow -- same file path)
 // ---------------------------------------------------------------------------
 func scrollLog(_ message: String) {
+    guard scrollDebugEnabled else { return }
     let ts = ISO8601DateFormatter().string(from: Date())
     let line = "[\(ts)] \(message)\n"
     let path = "/tmp/menubar_scroll_debug.log"
