@@ -3,6 +3,7 @@ import SwiftTerm
 
 protocol TerminalViewControllerDelegate: AnyObject {
     func terminalTitleChanged(_ controller: TerminalViewController, title: String)
+    func terminalAttentionRequested(_ controller: TerminalViewController)
 }
 
 /// Wrapper view that ensures scroll and mouse events work in borderless windows
@@ -11,7 +12,7 @@ class TerminalContainerView: NSView {
 }
 
 class TerminalViewController: NSViewController, LocalProcessTerminalViewDelegate {
-    private var terminalView: LocalProcessTerminalView!
+    private var terminalView: NotifyingLocalProcessTerminalView!
     private let shellPath = "/bin/zsh"
     weak var delegate: TerminalViewControllerDelegate?
     private(set) var currentTitle: String = "Terminal"
@@ -29,9 +30,17 @@ class TerminalViewController: NSViewController, LocalProcessTerminalViewDelegate
     }
 
     private func setupTerminal() {
-        terminalView = LocalProcessTerminalView(frame: view.bounds)
+        terminalView = NotifyingLocalProcessTerminalView(frame: view.bounds)
         terminalView.autoresizingMask = [.width, .height]
         terminalView.processDelegate = self
+        terminalView.onBell = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.terminalAttentionRequested(self)
+        }
+        terminalView.onActivityCompleted = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.terminalAttentionRequested(self)
+        }
 
         terminalView.font = TerminalConfig.defaultFont
         terminalView.installColors(TerminalConfig.colorScheme)

@@ -3,6 +3,8 @@ import Cocoa
 class MenuBarController {
     let statusItem: NSStatusItem
     var onToggle: (() -> Void)?
+    private var normalIcon: NSImage?
+    private var attentionIcon: NSImage?
     
     init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -12,10 +14,12 @@ class MenuBarController {
     
     private func setupIcon() {
         if let button = statusItem.button {
-            let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
-            let image = NSImage(systemSymbolName: "terminal", accessibilityDescription: "Terminal")?.withSymbolConfiguration(config)
-            image?.isTemplate = true
-            button.image = image
+            normalIcon = makeStatusIcon(symbols: ["terminal"], accessibilityDescription: "Terminal")
+            attentionIcon = makeStatusIcon(
+                symbols: ["terminal.badge.exclamationmark", "bell.badge.fill", "bell.fill"],
+                accessibilityDescription: "Terminal attention"
+            )
+            button.image = normalIcon
             button.imagePosition = .imageOnly
             button.action = #selector(toggleClicked)
             button.target = self
@@ -23,6 +27,17 @@ class MenuBarController {
             // Enable right-click for menu
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
+    }
+
+    private func makeStatusIcon(symbols: [String], accessibilityDescription: String) -> NSImage? {
+        let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
+        for symbol in symbols {
+            if let image = NSImage(systemSymbolName: symbol, accessibilityDescription: accessibilityDescription)?.withSymbolConfiguration(config) {
+                image.isTemplate = true
+                return image
+            }
+        }
+        return nil
     }
     
     private func setupMenu() {
@@ -38,6 +53,7 @@ class MenuBarController {
     }
     
     @objc private func toggleClicked() {
+        setAttentionIndicator(false)
         guard let event = NSApp.currentEvent else { return }
         
         if event.type == .rightMouseUp {
@@ -77,8 +93,14 @@ class MenuBarController {
     @objc private func openPreferences() {
         PreferencesWindow.show()
     }
+
+    func setAttentionIndicator(_ enabled: Bool) {
+        guard let button = statusItem.button else { return }
+        button.image = enabled ? (attentionIcon ?? normalIcon) : normalIcon
+    }
 }
 
 extension Notification.Name {
     static let newTerminalTab = Notification.Name("newTerminalTab")
+    static let terminalAttention = Notification.Name("terminalAttention")
 }
