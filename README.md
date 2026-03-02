@@ -116,6 +116,28 @@ swift build -c release
 swift run
 ```
 
+### Package + Start At Login
+
+To package the app and configure launch-at-login automatically:
+
+```bash
+chmod +x scripts/install_startup.sh
+./scripts/install_startup.sh
+```
+
+This will:
+- Build a release binary
+- Create `MenuBarTerminal.app`
+- Install it to `~/Applications`
+- Register a LaunchAgent at `~/Library/LaunchAgents/com.antondkg.menubarterminal.plist`
+
+To remove startup registration and uninstall the app bundle:
+
+```bash
+chmod +x scripts/uninstall_startup.sh
+./scripts/uninstall_startup.sh
+```
+
 ## Testing with Claude Code
 
 The terminal is designed to work seamlessly with Claude Code:

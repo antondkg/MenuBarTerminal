@@ -24,6 +24,31 @@ struct TerminalConfig {
     ]
     
     static var defaultFont: NSFont {
-        return NSFont(name: "MesloLGS NF", size: 13) ?? NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
+        let size = UserDefaults.standard.fontSize
+        let env = ProcessInfo.processInfo.environment
+
+        if let customFontName = env["MBT_FONT_NAME"], !customFontName.isEmpty,
+           let custom = NSFont(name: customFontName, size: size) {
+            return custom
+        }
+
+        // Set this to force a clipping-safe fallback if needed:
+        // MBT_SAFE_FONT=1
+        if env["MBT_SAFE_FONT"] == "1" {
+            return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        }
+
+        // Prefer Nerd Fonts so zsh prompts/icons render consistently across terminals.
+        if let mesloMono = NSFont(name: "MesloLGS Nerd Font Mono", size: size) {
+            return mesloMono
+        }
+        if let meslo = NSFont(name: "MesloLGS NF", size: size) {
+            return meslo
+        }
+        if let jetbrains = NSFont(name: "JetBrainsMono Nerd Font", size: size) {
+            return jetbrains
+        }
+
+        return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
     }
 }
