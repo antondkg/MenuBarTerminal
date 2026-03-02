@@ -2,6 +2,7 @@ import Cocoa
 
 class DropdownWindow: NSWindow {
     private let animationDuration = 0.25
+    private let windowCornerRadius: CGFloat = 14
     private var clickMonitor: Any?
     private(set) var tabView: TerminalTabView!
 
@@ -19,16 +20,12 @@ class DropdownWindow: NSWindow {
     }
 
     private func setupWindow() {
-        isOpaque = true
-        backgroundColor = NSColor.windowBackgroundColor
+        isOpaque = false
+        backgroundColor = .clear
         level = .floating
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         acceptsMouseMovedEvents = true
-
-        contentView?.wantsLayer = true
-        contentView?.layer?.cornerRadius = 10
-        contentView?.layer?.masksToBounds = true
-
+        animationBehavior = .utilityWindow
         hasShadow = true
     }
 
@@ -64,13 +61,41 @@ class DropdownWindow: NSWindow {
     }
 
     private func setupContentView() {
+        let rootView = NSView()
+        rootView.wantsLayer = true
+        rootView.layer?.backgroundColor = NSColor.clear.cgColor
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+
+        let chromeView = NSVisualEffectView()
+        chromeView.material = .underWindowBackground
+        chromeView.blendingMode = .withinWindow
+        chromeView.state = .active
+        chromeView.wantsLayer = true
+        chromeView.layer?.cornerRadius = windowCornerRadius
+        chromeView.layer?.masksToBounds = true
+        chromeView.layer?.borderWidth = 1
+        chromeView.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.35).cgColor
+        chromeView.translatesAutoresizingMaskIntoConstraints = false
+
         tabView = TerminalTabView()
         let resizeHandle = ResizeHandleView(wrapping: tabView)
-        contentView = resizeHandle
+        resizeHandle.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView?.wantsLayer = true
-        contentView?.layer?.cornerRadius = 10
-        contentView?.layer?.masksToBounds = true
+        chromeView.addSubview(resizeHandle)
+        rootView.addSubview(chromeView)
+        contentView = rootView
+
+        NSLayoutConstraint.activate([
+            chromeView.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 2),
+            chromeView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 2),
+            chromeView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -2),
+            chromeView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -2),
+
+            resizeHandle.topAnchor.constraint(equalTo: chromeView.topAnchor),
+            resizeHandle.leadingAnchor.constraint(equalTo: chromeView.leadingAnchor),
+            resizeHandle.trailingAnchor.constraint(equalTo: chromeView.trailingAnchor),
+            resizeHandle.bottomAnchor.constraint(equalTo: chromeView.bottomAnchor),
+        ])
     }
 
     private func setupEventMonitoring() {

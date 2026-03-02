@@ -12,7 +12,11 @@ class MenuBarController {
     
     private func setupIcon() {
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "terminal", accessibilityDescription: "Terminal")
+            let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
+            let image = NSImage(systemSymbolName: "terminal", accessibilityDescription: "Terminal")?.withSymbolConfiguration(config)
+            image?.isTemplate = true
+            button.image = image
+            button.imagePosition = .imageOnly
             button.action = #selector(toggleClicked)
             button.target = self
             

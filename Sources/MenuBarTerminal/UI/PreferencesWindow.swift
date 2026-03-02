@@ -27,12 +27,37 @@ class PreferencesWindow: NSWindow {
     
     private func setupWindow() {
         title = "MenuBarTerminal Preferences"
+        titlebarAppearsTransparent = true
+        toolbarStyle = .preference
+        isMovableByWindowBackground = true
         isReleasedWhenClosed = false
     }
     
     private func setupContentView() {
+        let chromeView = NSVisualEffectView()
+        chromeView.material = .sidebar
+        chromeView.blendingMode = .withinWindow
+        chromeView.state = .active
+        chromeView.wantsLayer = true
+        chromeView.layer?.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(0.8).cgColor
+
         let containerView = NSView()
-        contentView = containerView
+        containerView.wantsLayer = true
+        containerView.layer?.cornerRadius = 12
+        containerView.layer?.masksToBounds = true
+        containerView.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.92).cgColor
+        containerView.layer?.borderWidth = 1
+        containerView.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.35).cgColor
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        chromeView.addSubview(containerView)
+        contentView = chromeView
+
+        NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: chromeView.topAnchor, constant: 16),
+            containerView.leadingAnchor.constraint(equalTo: chromeView.leadingAnchor, constant: 16),
+            containerView.trailingAnchor.constraint(equalTo: chromeView.trailingAnchor, constant: -16),
+            containerView.bottomAnchor.constraint(equalTo: chromeView.bottomAnchor, constant: -16),
+        ])
         
         // Title Label
         let titleLabel = NSTextField(labelWithString: "MenuBarTerminal Settings")
@@ -107,15 +132,16 @@ class PreferencesWindow: NSWindow {
         stackView.orientation = .vertical
         stackView.alignment = .leading
         stackView.spacing = 10
+        stackView.edgeInsets = NSEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         containerView.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -20)
+            stackView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor)
         ])
         
         // Store references for saving
